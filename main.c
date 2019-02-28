@@ -4,6 +4,7 @@
 #include <string.h>
 
 int ** createPuzzle();
+int ** emptySpaces(int ** puzzle);
 void printPuzzle(int ** puzzle);
 bool checkBoard(int ** board);
 void solveRow(int * row);
@@ -62,6 +63,41 @@ int ** createPuzzle() {
 
 }
 
+// The following Function Takes in a Puzzle and Produces a List of All Empty Squares
+int ** emptySpaces(int ** puzzle) {
+    int eSpaces = 0;
+    int i, j, c = 0;
+
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            if (puzzle[i][j] == 0) {
+                eSpaces++;
+            }
+        }
+    }
+
+    // Need to redo this portion as a malloc array
+    int ** emptySpaces;
+    emptySpaces = (int **)malloc(sizeof(int*)*eSpaces);
+
+    for (i = 0; i < eSpaces; i++) {
+        emptySpaces[i] = (int*)malloc(sizeof(int)*2);
+    }
+
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            if (puzzle[i][j] == 0) {
+                emptySpaces[c][0] = i;
+                emptySpaces[c][1] = j;
+                c++;
+            }
+        }
+    }
+
+    return emptySpaces;
+}
+
+
 bool checkBoard(int **board) {
 
 }
@@ -118,73 +154,11 @@ void solveGrid(int ** grid) {
 }
 
 int main() {
-    printf("Hello, World!\n");
-
-    char ** puzzle;
-    printPuzzle(createPuzzle());
-
-    int row[9] = {1, 2, 3,      4, 0, 7,    8, 6, 5};
-    int column[9] = {1, 2, 3,   4, 0, 7,    8, 6, 5};
-    int grid[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
-    int * rowPuz;
-    int * colPuz;
-    int ** gridPuz;
-
-
-    // Initializing Malloc and Pointer Array for Row Testing
-    rowPuz = (int*)malloc(sizeof(int*)*9);
-    for (int j = 0; j < 9; j++) {
-        rowPuz[j] = row[j];
-    }
-
-    // Initializing Malloc and Pointer Array for Column Testing
-    colPuz = (int*)malloc(sizeof(int*)*9);
-    for (int j = 0; j < 9; j++) {
-        colPuz[j] = column[j];
-    }
-
-    // Initializing Malloc Resources and Pointer Array for 3x3 Grid Testing
-    gridPuz = (int**)malloc(sizeof(int**)*3);
-    for(int i = 0; i < 3; i++) {
-        gridPuz[i] = (int*)malloc(sizeof(int*)*3);
-    }
-    for(int x = 0; x < 3; x++) {
-        for (int y = 0; y < 3; y++) {
-            gridPuz[x][y] = grid[x][y];
-        }
-    }
-
-
-    // Testing to Ensure SolveRow Functionality
-    solveRow(rowPuz);
-
-    for (int i = 0; i < 9; i++) {
-        printf("%d", rowPuz[i]);
-    }
-
-    printf("\n\n");
-
-
-    // Testing to Ensure SolveColumn Functionality
-    solveColumn(colPuz);
-
-    for (int i = 0; i < 9; i++) {
-        printf("%d", colPuz[i]);
-    }
-
-    printf("\n\n");
-
-
-
-    // Testing to Ensure SolveGrid Functionality
-    solveGrid(gridPuz);
-
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            printf(" %d ", gridPuz[i][j]);
-        }
-        printf("\n");
-    }
+    int ** puzzle;
+    int ** eSpaces;
+    puzzle = createPuzzle();
+    printPuzzle(puzzle);
+    eSpaces = emptySpaces(puzzle);
 
     return 0;
 }
