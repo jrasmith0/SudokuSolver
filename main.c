@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <pthread.h>
 
 void printPuzzle(int ** puzzle);
 int ** createPuzzle();
@@ -186,15 +187,36 @@ void solveGrid(int ** grid) {
     grid[x][y] = (sum - runningSum);
 }
 
+void *threadSolveBacktrack(void *ptr) {
+    int (*grid)[9][9] = ptr;
+    printPuzzle(grid);
+}
+
+void startThreadSolve(int ** grid) {
+    // pthread_t t1, t2, t3, t4, t5, t6, t7, t8, t9;
+    // int r1, r2, r3, r4, r5, r6, r7, r8, r9; 
+    pthread_t threadArray[9];
+    int threadReturnArray[9];
+    int n = sizeof(threadArray[0]) / sizeof(threadArray);
+    for (int i = 0; i < n; i++) {
+        threadReturnArray[i] = pthread_create(&threadArray[i], NULL, threadSolveBacktrack, (void*) grid);
+        pthread_join(threadArray[i], NULL);
+    } 
+    // r1 = pthread_create(&t1, NULL, threadSolveBacktrack, (void*) grid);
+    printf("Done\n");
+}
+
 int main() {
     int ** puzzle;
     puzzle = createPuzzle();
-    printf("Before:\n");
-    printPuzzle(puzzle);
+    // printf("Before:\n");
+    // printPuzzle(puzzle);
 
-    solvePuzzle(puzzle);
-    printf("\n\n After:\n");
-    printPuzzle(puzzle);
+    // solvePuzzle(puzzle);
+    // printf("\n\n After:\n");
+    // printPuzzle(puzzle);
+
+    startThreadSolve(puzzle);
 
     return 0;
 }
