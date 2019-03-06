@@ -3,10 +3,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-int ** createPuzzle();
-int ** emptySpaces(int ** puzzle);
 void printPuzzle(int ** puzzle);
-bool checkBoard(int ** board);
+int ** createPuzzle();
+bool findEmptySpace(int ** puzzle, int * row, int * column);
+
+bool safeMove(int ** grid, int row, int column, int num);
+bool solvePuzzle(int ** puzzle);
 void solveRow(int * row);
 void solveColumn(int * column);
 void solveGrid(int ** grid);
@@ -63,44 +65,75 @@ int ** createPuzzle() {
 
 }
 
-// The following Function Takes in a Puzzle and Produces a List of All Empty Squares
-int ** emptySpaces(int ** puzzle) {
-    int eSpaces = 0;
-    int i, j, c = 0;
 
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
-            if (puzzle[i][j] == 0) {
-                eSpaces++;
+// Finds an empty space within the puzzle, if one exists returns true; else returns false
+bool findEmptySpace(int ** puzzle, int * row, int * column) {
+    for (*row = 0; *row < 9; *row += 1) {
+        for (*column = 0; *column < 9; *column += 1) {
+            if (puzzle[*row][*column] == 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+// Takes in a number and checks against the position's corresponding grid, row and column
+// Mutates the variable row and column to represent the respective location of the empty position
+bool safeMove(int ** puzzle, int row, int column, int num) {
+    int i, j;
+
+    // Checks the grid for the num; returns false if it exists
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++ ) {
+            if (puzzle[i + (row - (row % 3))][j - (column - (column % 3))] == num) {
+               return false;
             }
         }
     }
 
-    // Need to redo this portion as a malloc array
-    int ** emptySpaces;
-    emptySpaces = (int **)malloc(sizeof(int*)*eSpaces);
-
-    for (i = 0; i < eSpaces; i++) {
-        emptySpaces[i] = (int*)malloc(sizeof(int)*2);
-    }
-
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
-            if (puzzle[i][j] == 0) {
-                emptySpaces[c][0] = i;
-                emptySpaces[c][1] = j;
-                c++;
-            }
+    // Checks the row for the num; returns false if it exists
+    for (j = 0; j < 9; j++) {
+        if(puzzle[row][j] ==  num) {
+            return false;
         }
     }
 
-    return emptySpaces;
+    // Checks the column for the num; returns false if it exists
+    for (i = 0; i < 9; i++) {
+        if (puzzle[i][column] == num) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
-bool checkBoard(int **board) {
+// Solves the puzzle returning a value as to whether or not there is a valid solution
+bool solvePuzzle(int ** puzzle) {
+    int row = 0, column = 0;
+    int num;
 
+    if (!findEmptySpace(puzzle,  &row, &column)) {
+        return true;
+    }
+
+    for (num = 1; num <= 9; num++) {
+        if (safeMove(puzzle, row, column, num)) {
+            puzzle[row][column] = num;
+
+            if (solvePuzzle(puzzle)) {
+                return true;
+            }
+
+            puzzle[row][column] = 0;
+        }
+    }
+
+    return false;
 }
+
 
 // The following function solves a row if there is only one space unsolved in that row
 void solveRow(int * row) {
@@ -155,10 +188,13 @@ void solveGrid(int ** grid) {
 
 int main() {
     int ** puzzle;
-    int ** eSpaces;
     puzzle = createPuzzle();
+    printf("Before:\n");
     printPuzzle(puzzle);
-    eSpaces = emptySpaces(puzzle);
+
+    solvePuzzle(puzzle);
+    printf("\n\n After:\n");
+    printPuzzle(puzzle);
 
     return 0;
 }
